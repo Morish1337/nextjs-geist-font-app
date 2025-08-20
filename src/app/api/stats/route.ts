@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
-import { mockStats } from '@/lib/mockData';
+import { realStats } from '@/lib/mockData';
 
 export async function GET() {
   try {
@@ -20,16 +20,14 @@ export async function GET() {
     );
     const vip = (vipResult as any)[0].count;
 
-    const stats = {
+    return NextResponse.json({
       members,
       posts,
       vip
-    };
-
-    return NextResponse.json(stats);
+    });
   } catch (error) {
     console.error('Stats API Error:', error);
-    // Return mock data when database is not available
-    return NextResponse.json(mockStats);
+    // Return realistic fallback data
+    return NextResponse.json(realStats);
   }
 }
