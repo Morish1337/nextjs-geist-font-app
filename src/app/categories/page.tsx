@@ -2,424 +2,318 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Crown, Lock, Plus, Eye, MessageSquare, Calendar, User, Zap } from 'lucide-react';
+import BottomNav from '@/components/ui/BottomNav';
 import LoginModal from '@/components/ui/LoginModal';
 import VIPModal from '@/components/ui/VIPModal';
 
 interface Category {
-  id: number;
+  id: string;
   name: string;
+  description: string;
   type: 'FREE' | 'VIP';
-  description?: string;
-  post_count?: number;
+  postCount: number;
+  icon: string;
 }
 
 interface Post {
-  id: number;
+  id: string;
   title: string;
   content: string;
-  username: string;
+  author: string;
   created_at: string;
-  visibility: 'FREE' | 'VIP';
+  views: number;
+  likes: number;
 }
 
 export default function CategoriesPage() {
   const { data: session } = useSession();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories] = useState<Category[]>([
+    {
+      id: '1',
+      name: 'Finisseur VIP',
+      description: 'Contenu exclusif VIP',
+      type: 'VIP',
+      postCount: 156,
+      icon: '👑'
+    },
+    {
+      id: '2',
+      name: 'Finisseur Latina',
+      description: 'Contenu Latina',
+      type: 'FREE',
+      postCount: 234,
+      icon: '🌶️'
+    },
+    {
+      id: '3',
+      name: 'Finisseur Ass',
+      description: 'Contenu Ass',
+      type: 'FREE',
+      postCount: 189,
+      icon: '🍑'
+    },
+    {
+      id: '4',
+      name: 'Finisseur Boobs',
+      description: 'Contenu Boobs',
+      type: 'FREE',
+      postCount: 167,
+      icon: '💎'
+    },
+    {
+      id: '5',
+      name: 'Finisseur 92i',
+      description: 'Région parisienne',
+      type: 'FREE',
+      postCount: 98,
+      icon: '🏙️'
+    },
+    {
+      id: '6',
+      name: 'Finisseur Cumshot',
+      description: 'Contenu Cumshot',
+      type: 'FREE',
+      postCount: 145,
+      icon: '💦'
+    },
+    {
+      id: '7',
+      name: 'Finisseur Lesbienne',
+      description: 'Contenu Lesbienne',
+      type: 'FREE',
+      postCount: 123,
+      icon: '👭'
+    },
+    {
+      id: '8',
+      name: 'Finisseur Fellation',
+      description: 'Contenu Fellation',
+      type: 'FREE',
+      postCount: 178,
+      icon: '👄'
+    },
+    {
+      id: '9',
+      name: 'Finisseur Lieu Public',
+      description: 'Contenu Lieu Public',
+      type: 'FREE',
+      postCount: 87,
+      icon: '🌍'
+    }
+  ]);
+
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showVIPModal, setShowVIPModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState('');
-  const [newCategoryType, setNewCategoryType] = useState<'FREE' | 'VIP'>('FREE');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchCategories();
-  }, [session]);
-
-  useEffect(() => {
-    if (selectedCategory) {
-      fetchPosts(selectedCategory.id);
+  const handleCategoryClick = async (category: Category) => {
+    // Vérifier les permissions
+    if (category.type === 'VIP' && (!session || (session.user.role !== 'VIP' && session.user.role !== 'ADMIN'))) {
+      setShowVIPModal(true);
+      return;
     }
-  }, [selectedCategory, session]);
 
-  const fetchCategories = async () => {
-    try {
-      const userRole = session?.user?.role || 'FREE';
-      const response = await fetch(`/api/categories?userRole=${userRole}`);
-      const data = await response.json();
-      setCategories(data.categories || []);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setSelectedCategory(category);
+    setLoading(true);
 
-  const fetchPosts = async (categoryId: number) => {
     try {
-      const userRole = session?.user?.role || 'FREE';
-      const response = await fetch(`/api/posts?categoryId=${categoryId}&userRole=${userRole}`);
+      const response = await fetch(`/api/category-posts?categoryId=${category.id}&userRole=${session?.user?.role || 'FREE'}`);
       const data = await response.json();
       setPosts(data.posts || []);
     } catch (error) {
       console.error('Error fetching posts:', error);
+      setPosts([]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleCategoryClick = (category: Category) => {
-    if (category.type === 'VIP' && (!session || (session.user.role !== 'VIP' && session.user.role !== 'ADMIN'))) {
-      if (!session) {
-        setShowLoginModal(true);
-      } else {
-        setShowVIPModal(true);
-      }
-      return;
+  const handlePostClick = () => {
+    if (!session) {
+      setShowLoginModal(true);
     }
-    setSelectedCategory(category);
   };
 
-  const handleCreateCategory = async () => {
-    if (!newCategoryName.trim()) return;
+  const formatNumber = (num: number) => {
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
     
-    try {
-      const response = await fetch('/api/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newCategoryName,
-          type: newCategoryType,
-          userId: session?.user?.id
-        })
-      });
-      
-      if (response.ok) {
-        setNewCategoryName('');
-        setShowCreateForm(false);
-        fetchCategories();
-      }
-    } catch (error) {
-      console.error('Error creating category:', error);
-    }
+    if (diffInHours < 1) return 'Il y a quelques minutes';
+    if (diffInHours < 24) return `Il y a ${diffInHours}h`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `Il y a ${diffInDays}j`;
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
+  const canAccessCategory = (category: Category) => {
+    if (category.type === 'FREE') return true;
+    if (!session) return false;
+    return session.user.role === 'VIP' || session.user.role === 'ADMIN';
   };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 100
-      }
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full"
-        />
-      </div>
-    );
-  }
 
   return (
-    <motion.div
-      className="min-h-screen p-6"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {/* Header */}
-      <motion.div className="mb-8" variants={itemVariants}>
-        <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
-            Catégories
-          </h1>
-          <p className="text-gray-400">
-            Explorez nos différentes catégories de contenu
-          </p>
-        </div>
-
-        {/* Admin Create Button */}
-        {session?.user?.role === 'ADMIN' && (
-          <motion.div className="text-center mb-6" variants={itemVariants}>
-            <motion.button
-              onClick={() => setShowCreateForm(!showCreateForm)}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold px-6 py-3 rounded-xl hover:from-red-700 hover:to-red-800 transition-all shadow-lg"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Plus size={20} />
-              Créer une catégorie
-            </motion.button>
-          </motion.div>
-        )}
-
-        {/* Create Form */}
-        <AnimatePresence>
-          {showCreateForm && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="bg-gray-800/50 rounded-xl p-6 mb-6 border border-gray-700"
-            >
-              <h3 className="text-lg font-semibold text-white mb-4">Nouvelle catégorie</h3>
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Nom de la catégorie"
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none"
-                />
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 text-white">
-                    <input
-                      type="radio"
-                      name="categoryType"
-                      value="FREE"
-                      checked={newCategoryType === 'FREE'}
-                      onChange={(e) => setNewCategoryType(e.target.value as 'FREE' | 'VIP')}
-                      className="text-blue-500"
-                    />
-                    FREE
-                  </label>
-                  <label className="flex items-center gap-2 text-white">
-                    <input
-                      type="radio"
-                      name="categoryType"
-                      value="VIP"
-                      checked={newCategoryType === 'VIP'}
-                      onChange={(e) => setNewCategoryType(e.target.value as 'FREE' | 'VIP')}
-                      className="text-yellow-500"
-                    />
-                    VIP
-                  </label>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleCreateCategory}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors"
-                  >
-                    Créer
-                  </button>
-                  <button
-                    onClick={() => setShowCreateForm(false)}
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors"
-                  >
-                    Annuler
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      {!selectedCategory ? (
-        /* Categories Grid */
-        <motion.div className="space-y-6" variants={itemVariants}>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <div className="w-1 h-6 bg-gradient-to-b from-purple-400 to-pink-500 rounded-full" />
-            Toutes les catégories
-          </h2>
-          
-          <div className="grid gap-4">
-            <AnimatePresence>
-              {categories.map((category, index) => (
-                <motion.div
-                  key={category.id}
-                  className={`group relative bg-gradient-to-r ${
-                    category.type === 'VIP' 
-                      ? 'from-yellow-900/20 via-orange-900/10 to-gray-900/30 border-yellow-600/30 hover:border-yellow-500/50' 
-                      : 'from-gray-900/50 to-gray-800/30 border-gray-700/50 hover:border-gray-600/50'
-                  } backdrop-blur-sm p-6 rounded-xl border cursor-pointer transition-all duration-300 overflow-hidden`}
-                  onClick={() => handleCategoryClick(category)}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  layout
+    <>
+      <div className="min-h-screen">
+        {/* Header Premium */}
+        <header className="premium-header">
+          <div className="premium-container">
+            <div className="flex items-center justify-between">
+              <a href="/" className="premium-logo">
+                <span className="finisseur">Finisseur</span>
+                <span className="hub">Hub</span>
+              </a>
+              
+              {!session && (
+                <button 
+                  onClick={() => setShowLoginModal(true)}
+                  className="text-white hover:text-purple-400 transition-colors font-medium"
                 >
-                  {/* Background effect */}
-                  <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity ${
-                    category.type === 'VIP' 
-                      ? 'bg-gradient-to-r from-yellow-600/5 to-orange-600/5' 
-                      : 'bg-gradient-to-r from-purple-600/5 to-blue-600/5'
-                  }`} />
-                  
-                  <div className="relative z-10 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-xl ${
-                        category.type === 'VIP' 
-                          ? 'bg-gradient-to-br from-yellow-400/20 to-orange-500/20' 
-                          : 'bg-gradient-to-br from-purple-400/20 to-blue-500/20'
-                      }`}>
-                        {category.type === 'VIP' ? (
-                          <Crown className="text-yellow-400" size={24} />
-                        ) : (
-                          <Eye className="text-purple-400" size={24} />
-                        )}
-                      </div>
-                      
-                      <div>
-                        <h3 className={`font-semibold text-lg ${
-                          category.type === 'VIP' ? 'text-yellow-100' : 'text-white'
-                        } group-hover:${category.type === 'VIP' ? 'text-yellow-200' : 'text-purple-200'} transition-colors`}>
-                          {category.name}
-                        </h3>
-                        <div className="flex items-center gap-4 mt-1">
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            category.type === 'VIP' 
-                              ? 'bg-yellow-500/20 text-yellow-400' 
-                              : 'bg-blue-500/20 text-blue-400'
-                          }`}>
-                            {category.type}
-                          </span>
-                          <span className="text-xs text-gray-400 flex items-center gap-1">
-                            <MessageSquare size={12} />
-                            {category.post_count || 0} posts
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {category.type === 'VIP' && (!session || (session.user.role !== 'VIP' && session.user.role !== 'ADMIN')) && (
-                        <Lock className="text-yellow-400" size={20} />
-                      )}
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-      ) : (
-        /* Selected Category Posts */
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="space-y-6"
-        >
-          {/* Back Button & Category Header */}
-          <div className="flex items-center gap-4 mb-6">
-            <motion.button
-              onClick={() => setSelectedCategory(null)}
-              className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              ←
-            </motion.button>
-            <div>
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                {selectedCategory.type === 'VIP' ? (
-                  <Crown className="text-yellow-400" size={28} />
-                ) : (
-                  <Eye className="text-purple-400" size={28} />
-                )}
-                {selectedCategory.name}
-              </h2>
-              <p className="text-gray-400 text-sm">
-                {posts.length} post{posts.length !== 1 ? 's' : ''} disponible{posts.length !== 1 ? 's' : ''}
-              </p>
+                  Se connecter
+                </button>
+              )}
             </div>
           </div>
+        </header>
 
-          {/* Posts */}
-          <div className="grid gap-4">
-            <AnimatePresence>
-              {posts.length > 0 ? (
-                posts.map((post, index) => (
-                  <motion.div
-                    key={post.id}
-                    className={`group bg-gradient-to-r ${
-                      selectedCategory.type === 'VIP' 
-                        ? 'from-yellow-900/20 via-orange-900/10 to-gray-900/30 border-yellow-600/30' 
-                        : 'from-gray-900/50 to-gray-800/30 border-gray-700/50'
-                    } backdrop-blur-sm p-6 rounded-xl border hover:border-opacity-70 transition-all duration-300`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.01, y: -1 }}
-                    layout
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-semibold text-white group-hover:text-purple-200 transition-colors">
-                        {post.title}
-                      </h3>
-                      <div className={`text-xs px-2 py-1 rounded-full ${
-                        post.visibility === 'VIP' 
-                          ? 'bg-yellow-500/20 text-yellow-400' 
-                          : 'bg-blue-500/20 text-blue-400'
-                      }`}>
-                        {post.visibility}
+        <main className="premium-container">
+          {!selectedCategory ? (
+            // Categories Grid
+            <section className="fade-in-up">
+              <h1 className="premium-section-title mb-8">
+                <span>📂</span>
+                Explorez nos différentes catégories de contenu
+              </h1>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {categories.map((category) => {
+                  const hasAccess = canAccessCategory(category);
+                  
+                  return (
+                    <div
+                      key={category.id}
+                      onClick={() => handleCategoryClick(category)}
+                      className={`premium-card cursor-pointer relative ${!hasAccess ? 'opacity-75' : ''}`}
+                    >
+                      <div className="premium-card-content">
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-4xl">{category.icon}</span>
+                          <div className="text-right">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                              category.type === 'VIP' 
+                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
+                                : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                            }`}>
+                              {category.type}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <h3 className="premium-card-title">{category.name}</h3>
+                        <p className="premium-card-text">{category.description}</p>
+                        
+                        <div className="premium-card-meta">
+                          <span className="text-purple-400 font-semibold">
+                            Cliquez pour voir les posts
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <span>📄</span>
+                            {formatNumber(category.postCount)}
+                          </span>
+                        </div>
+
+                        {!hasAccess && (
+                          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                            <div className="text-center">
+                              <div className="text-4xl mb-2">🔒</div>
+                              <div className="text-white font-bold">VIP Requis</div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <p className="text-gray-300 text-sm mb-4 line-clamp-2">{post.content}</p>
-                    <div className="flex justify-between items-center text-xs text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <User size={12} />
-                        {post.username}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar size={12} />
-                        {new Date(post.created_at).toLocaleDateString('fr-FR')}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))
-              ) : (
-                <motion.div
-                  className="text-center py-16 text-gray-400"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  );
+                })}
+              </div>
+            </section>
+          ) : (
+            // Category Posts View
+            <section className="fade-in-up">
+              <div className="flex items-center gap-4 mb-8">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className="premium-btn-secondary !w-auto px-6 py-3"
                 >
-                  <MessageSquare className="mx-auto mb-4 opacity-50" size={48} />
-                  <p className="text-lg mb-2">Aucun post pour le moment</p>
-                  <p className="text-sm">Cette catégorie sera bientôt remplie de contenu exclusif !</p>
-                </motion.div>
+                  ← Retour
+                </button>
+                <div>
+                  <h1 className="premium-section-title !mb-0">
+                    <span>{selectedCategory.icon}</span>
+                    {selectedCategory.name}
+                  </h1>
+                  <p className="text-gray-400 mt-2">{selectedCategory.description}</p>
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="text-center py-20">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+                  <p className="text-gray-400 mt-4">Chargement des posts...</p>
+                </div>
+              ) : posts.length > 0 ? (
+                <div className="premium-cards">
+                  {posts.map((post) => (
+                    <article 
+                      key={post.id} 
+                      className="premium-card"
+                      onClick={handlePostClick}
+                    >
+                      <div className="premium-card-content">
+                        <h3 className="premium-card-title">{post.title}</h3>
+                        <p className="premium-card-text">{post.content}</p>
+                        <div className="premium-card-meta">
+                          <a href="#" className="premium-card-author">@{post.author}</a>
+                          <div className="premium-card-stats">
+                            <span>👁️ {formatNumber(post.views)}</span>
+                            <span>❤️ {post.likes}</span>
+                            <span>{formatTimeAgo(post.created_at)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="premium-vip-lock">
+                  <div className="premium-vip-lock-icon">📭</div>
+                  <h3 className="premium-vip-lock-title">Aucun post pour le moment</h3>
+                  <p className="premium-vip-lock-text">
+                    Cette catégorie ne contient pas encore de contenu. Revenez plus tard !
+                  </p>
+                </div>
               )}
-            </AnimatePresence>
-          </div>
-        </motion.div>
+            </section>
+          )}
+        </main>
+
+        <BottomNav />
+      </div>
+
+      {showLoginModal && (
+        <LoginModal onClose={() => setShowLoginModal(false)} />
       )}
 
-      {/* Modals */}
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
-      
-      <VIPModal
-        isOpen={showVIPModal}
-        onClose={() => setShowVIPModal(false)}
-        onUpgrade={() => {
-          setShowVIPModal(false);
-          // Handle VIP upgrade
-        }}
-      />
-    </motion.div>
+      {showVIPModal && (
+        <VIPModal onClose={() => setShowVIPModal(false)} />
+      )}
+    </>
   );
 }
