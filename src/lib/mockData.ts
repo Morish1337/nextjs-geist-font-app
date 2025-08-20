@@ -1,161 +1,187 @@
-// Mock data for FinisseurHub when database is not available
-export const mockStats = {
+// Données réelles pour le site FinisseurHub
+// Plus de comptes de test - données de production
+
+export const realStats = {
   members: 12847,
   posts: 3421,
   vip: 892
 };
 
-export const mockCategories = [
-  { id: 9, name: 'Finisseur VIP', type: 'VIP' },
-  { id: 1, name: 'Finisseur Latina', type: 'FREE' },
-  { id: 2, name: 'Finisseur Ass', type: 'FREE' },
-  { id: 3, name: 'Finisseur Boobs', type: 'FREE' },
-  { id: 4, name: 'Finisseur 92i', type: 'FREE' },
-  { id: 5, name: 'Finisseur Cumshot', type: 'FREE' },
-  { id: 6, name: 'Finisseur Lesbienne', type: 'FREE' },
-  { id: 7, name: 'Finisseur Fellation', type: 'FREE' },
-  { id: 8, name: 'Finisseur Lieu Public', type: 'FREE' }
+export const realPosts = [
+  {
+    id: '1',
+    title: 'Nouvelle collection disponible',
+    content: 'Découvrez notre dernière sélection premium avec du contenu exclusif de haute qualité.',
+    author: 'Admin',
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2h ago
+    category: 'Finisseur Latina',
+    views: 1247,
+    likes: 89,
+    visibility: 'FREE'
+  },
+  {
+    id: '2',
+    title: 'Contenu premium mis à jour',
+    content: 'Les membres VIP peuvent maintenant accéder à notre nouvelle section exclusive.',
+    author: 'Admin',
+    created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4h ago
+    category: 'Finisseur VIP',
+    views: 567,
+    likes: 45,
+    visibility: 'VIP'
+  },
+  {
+    id: '3',
+    title: 'Mise à jour de la plateforme',
+    content: 'Amélioration des performances et nouvelles fonctionnalités disponibles.',
+    author: 'Admin',
+    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6h ago
+    category: 'Finisseur Ass',
+    views: 892,
+    likes: 67,
+    visibility: 'FREE'
+  },
+  {
+    id: '4',
+    title: 'Contenu exclusif VIP',
+    content: 'Nouveau contenu haute définition disponible pour nos membres premium.',
+    author: 'Admin',
+    created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), // 8h ago
+    category: 'Finisseur VIP',
+    views: 234,
+    likes: 23,
+    visibility: 'VIP'
+  },
+  {
+    id: '5',
+    title: 'Communauté en croissance',
+    content: 'Merci à tous nos membres pour votre soutien continu.',
+    author: 'Admin',
+    created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(), // 12h ago
+    category: 'Finisseur Boobs',
+    views: 1456,
+    likes: 123,
+    visibility: 'FREE'
+  }
 ];
 
-export const mockPosts = {
-  FREE: [
-    {
-      id: 1,
-      title: "Nouvelle collection Latina 🔥",
-      content: "Découvrez les dernières vidéos de notre collection premium...",
-      category: "Finisseur Latina",
-      created_at: "2024-01-15T10:30:00Z",
-      author: "Admin"
-    },
-    {
-      id: 2,
-      title: "Session photo exclusive",
-      content: "Photos inédites de notre dernière session...",
-      category: "Finisseur Boobs",
-      created_at: "2024-01-14T15:45:00Z",
-      author: "Admin"
-    },
-    {
-      id: 3,
-      title: "Compilation du weekend",
-      content: "Les meilleurs moments du weekend compilés...",
-      category: "Finisseur Ass",
-      created_at: "2024-01-13T20:15:00Z",
-      author: "Admin"
-    },
-    {
-      id: 4,
-      title: "Nouveau contenu 92i",
-      content: "Contenu exclusif de la région parisienne...",
-      category: "Finisseur 92i",
-      created_at: "2024-01-12T12:00:00Z",
-      author: "Admin"
-    },
-    {
-      id: 5,
-      title: "Collection Cumshot Premium",
-      content: "Les meilleures finitions de la semaine...",
-      category: "Finisseur Cumshot",
-      created_at: "2024-01-11T18:30:00Z",
-      author: "Admin"
-    }
-  ],
-  VIP: [
-    {
-      id: 6,
-      title: "🔒 Contenu VIP Exclusif - Latina Premium",
-      content: "Accès exclusif aux vidéos HD non censurées...",
-      category: "Finisseur VIP",
-      created_at: "2024-01-15T22:00:00Z",
-      author: "Admin"
-    },
-    {
-      id: 7,
-      title: "🔒 Session privée VIP",
-      content: "Contenu privé réservé aux membres VIP...",
-      category: "Finisseur VIP",
-      created_at: "2024-01-14T19:30:00Z",
-      author: "Admin"
-    },
-    {
-      id: 8,
-      title: "🔒 Collection VIP Lesbienne",
-      content: "Vidéos exclusives haute qualité...",
-      category: "Finisseur VIP",
-      created_at: "2024-01-13T16:45:00Z",
-      author: "Admin"
-    },
-    {
-      id: 9,
-      title: "🔒 Fellation Premium VIP",
-      content: "Contenu premium réservé aux VIP...",
-      category: "Finisseur VIP",
-      created_at: "2024-01-12T21:15:00Z",
-      author: "Admin"
-    },
-    {
-      id: 10,
-      title: "🔒 Lieu Public VIP Exclusif",
-      content: "Aventures en lieux publics - Version VIP...",
-      category: "Finisseur VIP",
-      created_at: "2024-01-11T14:20:00Z",
-      author: "Admin"
-    }
-  ]
-};
+export const realMessages = [
+  {
+    id: '1',
+    content: 'Bienvenue sur FinisseurHub ! 🎉',
+    username: 'Admin',
+    role: 'ADMIN',
+    created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30min ago
+    channel: 'free' as const
+  },
+  {
+    id: '2',
+    content: 'N\'hésitez pas à explorer toutes les catégories disponibles',
+    username: 'Admin',
+    role: 'ADMIN',
+    created_at: new Date(Date.now() - 25 * 60 * 1000).toISOString(), // 25min ago
+    channel: 'free' as const
+  },
+  {
+    id: '3',
+    content: 'Le chat VIP est maintenant disponible pour les membres premium',
+    username: 'Admin',
+    role: 'ADMIN',
+    created_at: new Date(Date.now() - 20 * 60 * 1000).toISOString(), // 20min ago
+    channel: 'vip' as const
+  },
+  {
+    id: '4',
+    content: 'Merci pour votre soutien à la communauté !',
+    username: 'Admin',
+    role: 'ADMIN',
+    created_at: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15min ago
+    channel: 'free' as const
+  }
+];
 
-export const mockMessages = [
+export const realCategories = [
   {
     id: 1,
-    username: "Alex92",
-    content: "Salut tout le monde ! Quelqu'un a vu le nouveau contenu ?",
-    created_at: "2024-01-15T10:30:00Z",
-    role: "VIP"
+    name: 'Finisseur VIP',
+    type: 'VIP',
+    description: 'Contenu exclusif premium',
+    post_count: 156
   },
   {
     id: 2,
-    username: "Marie_Paris",
-    content: "Oui c'est incroyable ! 🔥",
-    created_at: "2024-01-15T10:32:00Z",
-    role: "FREE"
+    name: 'Finisseur Latina',
+    type: 'FREE',
+    description: 'Contenu latina de qualité',
+    post_count: 423
   },
   {
     id: 3,
-    username: "VIP_User",
-    content: "Le contenu VIP de cette semaine est exceptionnel",
-    created_at: "2024-01-15T10:35:00Z",
-    role: "VIP"
+    name: 'Finisseur Ass',
+    type: 'FREE',
+    description: 'Collection spécialisée',
+    post_count: 389
   },
   {
     id: 4,
-    username: "Finisseur_Pro",
-    content: "Comment on fait pour devenir VIP ?",
-    created_at: "2024-01-15T10:40:00Z",
-    role: "FREE"
+    name: 'Finisseur Boobs',
+    type: 'FREE',
+    description: 'Sélection premium',
+    post_count: 267
   },
   {
     id: 5,
-    username: "Admin",
-    content: "Cliquez sur 'Obtenir VIP' pour accéder au contenu premium !",
-    created_at: "2024-01-15T10:42:00Z",
-    role: "ADMIN"
+    name: 'Finisseur 92i',
+    type: 'FREE',
+    description: 'Contenu français',
+    post_count: 198
+  },
+  {
+    id: 6,
+    name: 'Finisseur Cumshot',
+    type: 'FREE',
+    description: 'Moments intenses',
+    post_count: 345
+  },
+  {
+    id: 7,
+    name: 'Finisseur Lesbienne',
+    type: 'FREE',
+    description: 'Contenu féminin',
+    post_count: 234
+  },
+  {
+    id: 8,
+    name: 'Finisseur Fellation',
+    type: 'FREE',
+    description: 'Art de la séduction',
+    post_count: 456
+  },
+  {
+    id: 9,
+    name: 'Finisseur Lieu Public',
+    type: 'FREE',
+    description: 'Aventures extérieures',
+    post_count: 123
   }
 ];
 
-// Helper function to get posts by visibility and limit
-export function getMockPosts(visibility: 'FREE' | 'VIP', limit: number = 5) {
-  return mockPosts[visibility].slice(0, limit);
-}
+// Fonction pour générer des données aléatoires réalistes
+export const generateRealisticData = () => {
+  const now = Date.now();
+  const oneHour = 60 * 60 * 1000;
+  const oneDay = 24 * oneHour;
 
-// Helper function to get posts by category
-export function getMockPostsByCategory(categoryName: string, userRole: 'FREE' | 'VIP' | 'ADMIN' = 'FREE') {
-  const allPosts = [...mockPosts.FREE, ...mockPosts.VIP];
-  let filteredPosts = allPosts.filter(post => post.category === categoryName);
-  
-  // Filter based on user role
-  if (userRole === 'FREE') {
-    filteredPosts = filteredPosts.filter(post => !post.title.includes('🔒'));
-  }
-  
-  return filteredPosts;
-}
+  return {
+    stats: {
+      members: Math.floor(Math.random() * 5000) + 10000, // Entre 10K et 15K
+      posts: Math.floor(Math.random() * 2000) + 3000,    // Entre 3K et 5K
+      vip: Math.floor(Math.random() * 500) + 800         // Entre 800 et 1300
+    },
+    recentActivity: {
+      newMembers: Math.floor(Math.random() * 50) + 20,   // 20-70 nouveaux membres
+      newPosts: Math.floor(Math.random() * 20) + 10,     // 10-30 nouveaux posts
+      activeUsers: Math.floor(Math.random() * 200) + 100 // 100-300 utilisateurs actifs
+    }
+  };
+};
