@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import BottomNav from '@/components/ui/BottomNav';
 import AuthProvider from '@/components/providers/AuthProvider';
+import AgeVerificationModal from '@/components/ui/AgeVerificationModal';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -28,6 +29,7 @@ export default function RootLayout({
             {children}
           </main>
           <BottomNav />
+          <AgeVerificationModal />
         </AuthProvider>
       </body>
     </html>
